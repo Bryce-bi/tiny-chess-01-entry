@@ -6,7 +6,7 @@
 
 A chess engine for make.fun's ["Build the strongest chess engine in 4 KB of
 Python"](https://make.fun/bounty/tiny-chess-01?utm_source=github&utm_medium=readme&utm_campaign=tiny-chess-01)
-bounty. `main.py` is the whole engine (4,070 bytes as committed),
+bounty. `main.py` is the whole engine (4,094 bytes as committed),
 Python 3.13 standard library only, reading no other file.
 
 ## How it plays
@@ -15,15 +15,15 @@ Python 3.13 standard library only, reading no other file.
   by a simple MVV-LVA capture heuristic, and checked for king safety one
   at a time, so alpha-beta cutoffs skip legality checks on moves never
   tried.
-- Negamax alpha-beta search with a quiescence extension on captures
-  (4 plies), under iterative deepening.
-- Deterministic by a node-count budget, never a clock: the same position
-  and history always produce the same move, so a replay matches.
+- Negamax alpha-beta search under iterative deepening, bounded by a
+  node-count budget rather than a clock: the same position and history
+  always produce the same move, so a replay matches.
 - Material + a small positional bonus (centre file/rank, pawn
   advancement) for evaluation.
-- Does not castle. Dropping it kept the rest of the move generator (legal
-  captures, promotions, en passant, check detection) inside the 4,096-byte
-  cap with room to spare for search and evaluation.
+- Does not castle, and has no quiescence extension (plain fixed-depth
+  negamax at the horizon). Both were dropped to keep the move generator
+  (legal captures, promotions, en passant, check detection) and search
+  inside the 4,096-byte cap.
 
 ## Verifying it
 

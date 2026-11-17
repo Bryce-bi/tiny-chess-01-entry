@@ -1,166 +1,148 @@
-d='NKBRQ'
-c=range
-Q=False
-P='abcdefgh'
-O='Q'
-N='R'
-M='B'
-I='K'
-L='e'
-K='w'
-H='P'
-F=True
-B='.'
-A=None
-import json as R,os,sys,urllib.request,urllib.error
-b=os.environ.get('MAKEFUN_ENV_URL')or sys.exit(1)
-D={'N':[(1,2),(2,1),(2,-1),(1,-2),(-1,-2),(-2,-1),(-2,1),(-1,2)],I:[(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1),(0,-1),(1,-1)],M:[(1,1),(1,-1),(-1,1),(-1,-1)],N:[(1,0),(-1,0),(0,1),(0,-1)]}
-D[O]=D[M]+D[N]
-S='BRQ'
-C={H:100,'N':320,M:330,N:500,O:900,I:0}
-T=[0,1,2,3,3,2,1,0]
-U=7200
-E=0
-G=A
-def J(f,r):return 0<=f<8 and 0<=r<8
-def V(p,w):return p!=B and p.isupper()==w
-def e(p,w):return p!=B and p.isupper()!=w
-def f(fen):
-	F,G,L,A=fen.split()[:4];E=[B]*64
-	for(H,I)in enumerate(F.split('/')):
-		J=7-H;C=0
-		for D in I:
-			if D.isdigit():C+=int(D)
-			else:E[J*8+C]=D;C+=1
-	K=-1 if A=='-'else P.index(A[0])+(int(A[1])-1)*8;return E,G,K
-def g(b,sq,w,t):
-	I,K=sq%8,sq//8;F=[]
-	for(G,H)in D[t]:
-		A,C=I+G,K+H
-		while J(A,C):
-			E=C*8+A
-			if V(b[E],w):break
-			F.append(E)
-			if b[E]!=B or t not in S:break
-			A+=G;C+=H
-	return F
-def h(b,side,ep):
-	U='QRBN';H=side==K;E=[]
-	for C in c(64):
-		M=b[C]
-		if M==B or not V(M,H):continue
-		P=M.upper()
-		if P in d:
-			for D in g(b,C,H,P):E.append((C,D,A,A))
-		else:
-			I,N=C%8,C//8;Q=1 if H else-1;W=1 if H else 6;R=7 if H else 0;G=N+Q
-			if J(I,G)and b[G*8+I]==B:
-				D=G*8+I
-				if G==R:
-					for O in U:E.append((C,D,O,A))
-				else:E.append((C,D,A,A))
-				if N==W:
-					S=N+2*Q
-					if b[S*8+I]==B:E.append((C,S*8+I,A,F))
-			for X in(-1,1):
-				T=I+X
-				if not J(T,G):continue
-				D=G*8+T
-				if e(b[D],H):
-					if G==R:
-						for O in U:E.append((C,D,O,A))
-					else:E.append((C,D,A,A))
-				elif D==ep:E.append((C,D,A,L))
-	return E
-def W(b,sq,bw):
-	K,L=sq%8,sq//8;P=-1 if bw else 1
-	for E in(-1,1):
-		A,C=K+E,L+P
-		if J(A,C)and b[C*8+A]==(H if bw else'p'):return F
-	for G in d:
-		for(E,M)in D[G]:
-			A,C=K+E,L+M
-			while J(A,C):
-				I=b[C*8+A]
-				if I!=B:
-					N=I.upper()
-					if I.isupper()==bw and(N==G or G in'BR'and N==O):return F
-					break
-				if G not in S:break
-				A+=E;C+=M
-	return Q
-def i(b,side,ep,m):
-	D,C,E,H=m;G=side==K;A=b[:];I=A[D];A[D]=B;J=-1
-	if H==L:A[C]=I;M=C+(-8 if G else 8);A[M]=B
-	elif E:A[C]=E if G else E.lower()
-	else:A[C]=I
-	if H is F:J=(D+C)//2
-	return A,'b'if G else K,J
-def X(b,w):return b.index(I if w else'k')
-def Y(b):
-	G=0
-	for D in c(64):
-		A=b[D]
-		if A==B:continue
-		J,E=D%8,D//8;I=A.upper();F=C[I]+4*(T[J]+T[E])
-		if I==H:F+=6*(E-1)if A==H else 6*(6-E)
-		G+=F if A.isupper()else-F
-	return G
-def j(b,m):A=b[m[1]];D=C[A.upper()]if A!=B else C[H]if m[3]==L else 0;E=b[m[0]];return-(D*10-C[E.upper()])-(40 if m[2]else 0)
-def k(b,side,ep):
-	A=side;C=A==K;D=h(b,A,ep);D.sort(key=lambda m:j(b,m))
-	for E in D:
-		B,F,G=i(b,A,ep,E)
-		if W(B,X(B,C),not C):continue
-		yield(E,B,F,G)
-def Z(b,side,ep,depth,alpha,beta,root=Q):
-	I=depth;H=beta;A=alpha;global E,G;E+=1;J=side==K
-	if E>U:return Y(b)*(1 if J else-1)
-	M=I<=0 and not root
-	if M:
-		N=Y(b)*(1 if J else-1)
-		if N>=H:return H
-		if N>A:A=N
-		if I<=-4:return A
-	P=Q;C=-10**9
-	for(O,R,S,T)in k(b,side,ep):
-		if M and b[O[1]]==B and O[3]!=L:continue
-		P=F;D=-Z(R,S,T,I-1,-H,-A)
-		if root:
-			if D>C:C=D;G=O
-			if C>A:A=C
-		elif M:
-			if D>=H:return H
-			if D>A:A=D
-		else:
-			if D>C:C=D
-			if C>A:A=C
-			if A>=H:break
-	if M:return A
-	if not P:
-		if W(b,X(b,J),not J):return-100000+(10-I)
-		return 0
-	return C
-def l(b,side,ep):
-	global E,G;E=0;C=A;B=1
-	while B<=10 and E<U:
-		G=A;Z(b,side,ep,B,-10**9,10**9,F)
-		if G is not A:C=G
-		B+=1
-	return C
-def m(m):A,B,C=m[0],m[1],m[2];D=P[A%8]+str(A//8+1)+P[B%8]+str(B//8+1);return D+C.lower()if C else D
-def a(path,body):
-	A=urllib.request.Request(b+path,data=R.dumps(body).encode(),headers={'content-type':'application/json'})
-	try:
-		with urllib.request.urlopen(A)as B:return R.load(B)
-	except urllib.error.HTTPError:sys.exit(1)
-def n():
-	G='game';E='status';C='legal_moves'
-	while F:
-		A=a('/game',{})
-		if A[E]=='done':break
-		while A[E]=='your_move':
-			H,I,J=f(A['fen']);D=l(H,I,J);B=m(D)if D else A[C][0]
-			if B not in A[C]:B=A[C][0]
-			A=a('/move',{G:A[G],'move':B})
-if __name__=='__main__':n()
+import json,os,sys,urllib.request,urllib.error
+EU=os.environ.get("MAKEFUN_ENV_URL")or sys.exit(1)
+Z={"N":[(1,2),(2,1),(2,-1),(1,-2),(-1,-2),(-2,-1),(-2,1),(-1,2)],"K":[(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1),(0,-1),(1,-1)],"B":[(1,1),(1,-1),(-1,1),(-1,-1)],"R":[(1,0),(-1,0),(0,1),(0,-1)]}
+Z["Q"]=Z["B"]+Z["R"]
+X="BRQ"
+V={"P":100,"N":320,"B":330,"R":500,"Q":900,"K":0}
+Y=[0,1,2,3,3,2,1,0]
+O=7200
+N=0
+J=None
+W=J
+U="."
+AB="abcdefgh"
+LM="legal_moves"
+def B(f,r):return 0<=f<8 and 0<=r<8
+def M(p,w):return p!=U and p.isupper()==w
+def F(p,w):return p!=U and p.isupper()!=w
+def P(fen):
+ pl,side,_,ep=fen.split()[:4]
+ bd=[U]*64
+ for i,row in enumerate(pl.split("/")):
+  rk=7-i;fl=0
+  for ch in row:
+   if ch.isdigit():fl+=int(ch)
+   else:bd[rk*8+fl]=ch;fl+=1
+ e=-1 if ep=="-" else AB.index(ep[0])+(int(ep[1])-1)*8
+ return bd,side,e
+def R(bd,sq,w,t):
+ f0,r0=sq%8,sq//8;out=[]
+ for df,dr in Z[t]:
+  f,r=f0+df,r0+dr
+  while B(f,r):
+   if M(bd[to:=r*8+f],w):break
+   out.append(to)
+   if bd[to]!=U or t not in X:break
+   f+=df;r+=dr
+ return out
+def PZ(ms,sq,to,r,pr):
+ if r==pr:
+  for q in"QRBN":ms.append((sq,to,q,J))
+ else:ms.append((sq,to,J,J))
+def G(bd,side,ep):
+ w=side=="w";ms=[]
+ for sq in range(64):
+  if(p:=bd[sq])==U or not M(p,w):continue
+  t=p.upper()
+  if t in "NKBRQ":
+   for to in R(bd,sq,w,t):ms.append((sq,to,J,J))
+  else:
+   f0,r0=sq%8,sq//8;d=1 if w else-1;sr=1 if w else 6;pr=7 if w else 0;r=r0+d
+   if B(f0,r) and bd[r*8+f0]==U:
+    to=r*8+f0
+    PZ(ms,sq,to,r,pr)
+    if r0==sr:
+     r2=r0+2*d
+     if bd[r2*8+f0]==U:ms.append((sq,r2*8+f0,J,True))
+   for df in(-1,1):
+    f=f0+df
+    if not B(f,r):continue
+    to=r*8+f
+    if F(bd[to],w):PZ(ms,sq,to,r,pr)
+    elif to==ep:ms.append((sq,to,J,"e"))
+ return ms
+def A(bd,sq,bw):
+ f0,r0=sq%8,sq//8;d=-1 if bw else 1
+ for df in(-1,1):
+  f,r=f0+df,r0+d
+  if B(f,r) and bd[r*8+f]==("P" if bw else "p"):return True
+ for t in "NKBRQ":
+  for df,dr in Z[t]:
+   f,r=f0+df,r0+dr
+   while B(f,r):
+    if(p:=bd[r*8+f])!=U:
+     if p.isupper()==bw and((pu:=p.upper())==t or(t in "BR" and pu=="Q")):return True
+     break
+    if t not in X:break
+    f+=df;r+=dr
+ return False
+def D(bd,side,ep,m):
+ frm,to,promo,fl=m;w=side=="w";b2=bd[:]
+ p=b2[frm];b2[frm]=U
+ if fl=="e":
+  b2[to]=p;cap=to+(-8 if w else 8);b2[cap]=U
+ elif promo:b2[to]=promo if w else promo.lower()
+ else:b2[to]=p
+ return b2,("b" if w else "w"),(frm+to)//2 if fl is True else-1
+def K(bd,w):return bd.index("K" if w else "k")
+def E(bd):
+ s=0
+ for sq in range(64):
+  if(p:=bd[sq])==U:continue
+  f,r=sq%8,sq//8;t=p.upper();v=V[t]+4*(Y[f]+Y[r])
+  if t=="P":v+=6*(r-1) if p=="P" else 6*(6-r)
+  s+=v if p.isupper() else-v
+ return s
+def Q(bd,m):
+ vv=V[t.upper()] if(t:=bd[m[1]])!=U else(V["P"] if m[3]=="e" else 0)
+ return-(vv*10-V[bd[m[0]].upper()])-(40 if m[2] else 0)
+def L(bd,side,ep):
+ w=side=="w"
+ pm=G(bd,side,ep)
+ pm.sort(key=lambda m:Q(bd,m))
+ for m in pm:
+  b2,s2,e2=D(bd,side,ep,m)
+  if A(b2,K(b2,w),not w):continue
+  yield m,b2,s2,e2
+def S(bd,side,ep,depth,alpha,beta,root=False):
+ global N,W
+ N+=1
+ w=side=="w"
+ if N>O or depth==0:return E(bd)*(1 if w else-1)
+ best=-10**9
+ for m,b2,s2,e2 in L(bd,side,ep):
+  sc=-S(b2,s2,e2,depth-1,-beta,-alpha)
+  if sc>best:
+   best=sc
+   if root:W=m
+  if best>alpha:alpha=best
+  if alpha>=beta and not root:break
+ if best==-(10**9):
+  if A(bd,K(bd,w),not w):return-100000+(10-depth)
+  return 0
+ return best
+def T(m):
+ fr,to,pr=m[:3]
+ s=AB[fr%8]+str(fr//8+1)+AB[to%8]+str(to//8+1)
+ return s+pr.lower() if pr else s
+def H(path,body):
+ rq=urllib.request.Request(EU+path,data=json.dumps(body).encode(),headers={"content-type":"application/json"})
+ try:
+  with urllib.request.urlopen(rq)as rs:return json.load(rs)
+ except urllib.error.HTTPError:sys.exit(1)
+def I():
+ global N,W
+ while True:
+  g=H("/game",{})
+  if g["status"]=="done":break
+  while g["status"]=="your_move":
+   bd,side,ep=P(g["fen"])
+   N=0;m=J;d=1
+   while d<=10 and N<O:
+    W=J
+    S(bd,side,ep,d,-10**9,10**9,True)
+    if W is not J:m=W
+    d+=1
+   if(mv:=T(m)if m else g[LM][0])not in g[LM]:mv=g[LM][0]
+   g=H("/move",{"game":g["game"],"move":mv})
+if __name__=="__main__":I()
