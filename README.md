@@ -6,31 +6,35 @@
 
 A chess engine for make.fun's ["Build the strongest chess engine in 4 KB of
 Python"](https://make.fun/bounty/tiny-chess-01?utm_source=github&utm_medium=readme&utm_campaign=tiny-chess-01)
-bounty. `main.py` is the whole engine (4,094 bytes as committed),
-Python 3.13 standard library only, reading no other file.
+bounty. `main.py` (3,898 bytes as committed) unpacks and execs a zlib
+payload of the real engine, which is both allowed and counted by the
+bounty's rules ("a `main.py` that unpacks and execs a compressed payload
+(`lzma`, `zlib`) is fine; the payload and the unpacker are both part of
+its 4,096 bytes"). It reads no other file at runtime.
 
 ## How it plays
 
-- Lazy-legality move generation: pseudo-legal moves are generated, sorted
-  by a simple MVV-LVA capture heuristic, and checked for king safety one
-  at a time, so alpha-beta cutoffs skip legality checks on moves never
-  tried.
-- Negamax alpha-beta search under iterative deepening, bounded by a
-  node-count budget rather than a clock: the same position and history
-  always produce the same move, so a replay matches.
-- Material + a small positional bonus (centre file/rank, pawn
-  advancement) for evaluation.
-- Does not castle, and has no quiescence extension (plain fixed-depth
-  negamax at the horizon). Both were dropped to keep the move generator
-  (legal captures, promotions, en passant, check detection) and search
-  inside the 4,096-byte cap.
+Lazy-legality move generation (pseudo-legal, MVV-LVA ordered, with a pin
+fast-path that skips the full king-safety recheck when a move plainly
+can't expose the king), negamax alpha-beta with quiescence on captures,
+iterative deepening bounded by a 12,000-node budget (never a clock, so a
+replay matches), castling, and material + centre/pawn-advance/bishop-pair
+eval.
+
+## Why main.py is a compressed payload
+
+The readable source (`engine_src.py`, not committed — `.gitignore`) is
+~8.8 KB with quiescence and castling back in; too big to fit raw.
+`pack.py` (stdlib `zlib`/`base64` only, also not committed) compresses it
+into the `main.py` here, as the rules allow. The bundle for submission
+needs `--compress-source main.py=engine_src.py` so the authorship checks
+read the real source, not the compressed bytes.
 
 ## Verifying it
 
-The move generator was checked against the standard perft reference
-values (the start position to depth 4, and the "Kiwipete" test position)
-before being minified into `main.py`; both matched exactly. See the
-submission's transcripts for the development and verification sessions.
+Perft-checked before and after packing (startpos depths 1-4: 20, 400,
+8902, 197281; Kiwipete depths 1-3: 48, 2039, 97862, castling included) —
+exact match both times. See the submission's transcripts for the rest.
 
 ## Size rule
 
